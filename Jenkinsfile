@@ -375,26 +375,26 @@ def prepareFuibRelease(releaseData) {
     bat (script:"fciv -md5 \""+zipFullFileName+"\"  >$TMP_FILE_MD5", returnStdout: true)
 
         // def md5 = readFile(TMP_FILE_MD5).trim().split("\n")[3].substring(0,32)
-    def md5 = (new File(TMP_FILE_MD5)).text
-    println "MD5:" md5 
+    def md5 = ((new File(TMP_FILE_MD5)).text.trim().split("\n")[3]).substring(0,32)
+    println "MD5: "+md5
 
 
-    bat (script:"copy  \""+zipFullFileName +"\" "+releaseData.get("dstFolder")+"\"")
+    // bat (script:"copy  \""+zipFullFileName +"\" \""+releaseData.get("dstFolder")+"\"")
 
-    // def htmlTable = ""
-    // for (item in releaseData.get("items")){
-    //     htmlTable+="<tr><td>"+item.get("newFileName")+"</td><td>"+item.get("code")+"</td><td>"+item.get("description")+"</td></tr>"
-    // }
-    // def textBody  = '''
-    //     '''+  releaseData.get("dstFolder") +" md5("+zipFile+")="+md5 +'''
-    //     <table> '''+         htmlTable+'''
-    //     </table>
-    // '''
-    //     emailext attachLog: true, 
-    //                   body: textBody, 
-    //            compressLog: true,
-    //                subject: 'RELEASE SQL', 
-    //                     to: releaseData.get("mail")
+    def htmlTable = ""
+    for (item in releaseData.get("items")){
+        htmlTable+="<tr><td>"+item.get("newFileName")+"</td><td>"+item.get("code")+"</td><td>"+item.get("description")+"</td></tr>"
+    }
+    def textBody  = '''
+        '''+  releaseData.get("dstFolder") +" md5("+zipFile+")="+md5 +'''
+        <table> '''+         htmlTable+'''
+        </table>
+    '''
+        emailext attachLog: true, 
+                      body: textBody, 
+               compressLog: true,
+                   subject: 'RELEASE SQL', 
+                        to: releaseData.get("mail")
 
     //md5
     /*
