@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<scriptApproval plugin="script-security@1.20">
+  <approvedScriptHashes/>
+  <approvedSignatures>
+    <string>method hudson.scm.SubversionSCM getLocations</string>
+    <string>method java.io.File exists</string>
+    <string>method java.io.File getAbsolutePath</string>
+    <string>method java.io.File getName</string>
+    <string>method java.io.File isFile</string>
+    <string>method java.io.File mkdirs</string>
+    <string>method java.lang.Appendable append char</string>
+    <string>method java.lang.CharSequence subSequence int int</string>
+    <string>method java.lang.String getBytes java.lang.String</string>
+    <string>method java.lang.String indexOf java.lang.String int</string>
+    <string>new java.io.File java.lang.String</string>
+    <string>new java.lang.String byte[]</string>
+    <string>new java.lang.StringBuffer java.lang.CharSequence</string>
+    <string>new java.lang.StringBuilder java.lang.CharSequence</string>
+    <string>new java.util.Date</string>
+    <string>new java.util.HashMap</string>
+    <string>staticField java.nio.file.StandardCopyOption REPLACE_EXISTING</string>
+    <string>staticMethod java.lang.Math max int int</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getBytes java.io.File</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.File</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods leftShift java.io.File byte[]</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods leftShift java.io.File java.lang.Object</string>
+    <string>staticMethod org.codehaus.groovy.runtime.ScriptBytecodeAdapter castToType java.lang.Object java.lang.Class</string>
+  </approvedSignatures>
+  <aclApprovedSignatures/>
+  <approvedClasspathEntries/>
+  <pendingScripts/>
+  <pendingSignatures/>
+  <pendingClasspathEntries/>
+</scriptApproval>

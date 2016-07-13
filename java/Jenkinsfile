@@ -1,0 +1,102 @@
+
+node {
+	
+	def mvnHome = tool 'M3'
+	def TMP_FILE_REPO = "repo_info.log"
+	def currentStage = ""
+
+	Map svnInfo = [:]
+	try {
+
+	   // Mark the code 'checkout' stage....
+	   currentStage = 'Checkout'
+	   stage currentStage
+
+	   // Checkout code from repository
+	   checkout scm
+
+	   
+
+	    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'c1e3cb99-6582-4124-9a87-8889bce47618',
+                     usernameVariable: 'SVN_USERNAME', passwordVariable: 'SVN_PASSWORD']]) {
+	      // get information about svn working copy
+			def ret = bat (script:"svn info --no-auth-cache --trust-server-cert --non-interactive --username %SVN_USERNAME% --password %SVN_PASSWORD% >$TMP_FILE_REPO", returnStdout: true)
+		// }
+			svnInfo = parseSvnInfo(readFile(TMP_FILE_REPO))
+			def revision = svnInfo.get("Revision")
+
+		// withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'c1e3cb99-6582-4124-9a87-8889bce47618',
+  //                    usernameVariable: 'SVN_USERNAME', passwordVariable: 'SVN_PASSWORD']]) {		
+		  // get log text from last commit. It will be parsed for further work 
+			ret = bat (script: "svn log --no-auth-cache --trust-server-cert --non-interactive --username %SVN_USERNAME% --password %SVN_PASSWORD% -r $revision >$TMP_FILE_REPO", returnStdout: true)
+		}
+
+		svnInfo.put("LOG", readFile(TMP_FILE_REPO).trim())
+		println svnInfo
+	   
+
+	   // Mark the code 'Build' stage....
+	   currentStage = 'Build'
+	   stage currentStage
+   	   // Get the maven tool.
+	   // ** NOTE: This 'M3' maven tool must be configured
+	   // **       in the global configuration.
+
+	   // Run the maven build, tests will be executed separately
+	   bat "${mvnHome}/bin/mvn -B -f continues/pom.xml clean install -DskipTests"
+
+
+	   // Mark the code 'Build' stage....
+	   currentStage = 'Unit Tests'
+	   stage currentStage
+   	   // Get the maven tool.
+	   // ** NOTE: This 'M3' maven tool must be configured
+	   // **       in the global configuration.
+
+	   // Run the maven build, tests will be executed separately
+	   bat "${mvnHome}/bin/mvn -B -f continues/pom.xml test"
+
+	} catch(Exception e) { 
+		def toEmail = findEmail (svnInfo.get("Last Changed Author").trim())
+		println toEmail
+
+		emailext attachLog: true, 
+					  body: '<h2> <a href="'+env.BUILD_URL+'">Job "'+env.JOB_NAME+'" ('+env.BUILD_NUMBER+') failed </> </h2>'  , 
+			   compressLog: true,
+	               subject: 'JENKINS CI Exception. Stage: '+currentStage+'. SVN: '+svnInfo.get("Relative URL") , 
+	                    to: toEmail
+	    throw e;
+	}
+
+}
+
+def parseSvnInfo (body) {
+	def result = [:]
+		
+	for (it in body.split("\n")) {
+		p = it.indexOf(":", 0)
+		println ([it , p])
+		if (p>0) {
+			result.put(it.substring(0,p) , it.substring(p+1,it.length()).trim())
+		}
+	}
+	return result
+}
+
+
+
+
+def findEmail(author) {
+	def emails = ["Miha":"mmihaylovich@ya.ru"]
+	def email_suffix = "@xxxx.com"
+
+	def email = emails.get(author)
+
+	if (email == null) {
+		return author+email_suffix
+	} else {
+		return email
+	}
+
+}
+// println parseSvnInfo(new File('svninfo.txt').text)
